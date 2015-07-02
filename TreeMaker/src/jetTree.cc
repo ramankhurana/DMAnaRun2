@@ -36,8 +36,8 @@ jetTree::jetTree(std::string desc, TTree* tree, const edm::ParameterSet& iConfig
   SubJetCollectionC_ ( iConfig.getParameter<edm::InputTag>("SubJetsPY") ),  
   svTagInfosCstr_(iConfig.getParameter<std::string>("svTagInfosPY")),
   isSpring15_(iConfig.getParameter<bool>("isSpring15")),
-//jecPayloadNames_( iConfig.getParameter<std::vector<std::string> >(Form("%sjecPayloadNames",desc.data()) )), 
- // jecUncName_( iConfig.getParameter<std::string>(Form("%sjecUncName",desc.data())) ),	
+  jecPayloadNames_( iConfig.getParameter<std::vector<std::string> >("ADDjecPayloadNames")), 
+  jecUncName_( iConfig.getParameter<std::string>("ADDjecUncName") ),	
   jet2012ID_()
 {
   
@@ -53,19 +53,19 @@ jetTree::jetTree(std::string desc, TTree* tree, const edm::ParameterSet& iConfig
 
 
   //Get the factorized jet corrector parameters.                                                                                                                        
-  // std::vector<JetCorrectorParameters> vPar;
-  // for ( std::vector<std::string>::const_iterator payloadBegin = 
-  //  	  jecPayloadNames_.begin(),
-  // 	  payloadEnd = jecPayloadNames_.end(), ipayload = payloadBegin; 
-  //  	ipayload != payloadEnd; ++ipayload ) 
-  //   {
-  //     JetCorrectorParameters pars(*ipayload);
-  //     vPar.push_back(pars);
-  //   }
+   std::vector<JetCorrectorParameters> vPar;
+   for ( std::vector<std::string>::const_iterator payloadBegin = 
+    	  jecPayloadNames_.begin(),
+   	  payloadEnd = jecPayloadNames_.end(), ipayload = payloadBegin; 
+    	ipayload != payloadEnd; ++ipayload ) 
+     {
+       JetCorrectorParameters pars(*ipayload);
+       vPar.push_back(pars);
+     }
 
   // // Make the FactorizedJetCorrector and Uncertainty                                                                                                                    
-  // jec_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
-  // jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(jecUncName_) );
+   jec_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
+   jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(jecUncName_) );
 
 
 }
@@ -83,7 +83,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 
   cout<<isFATJet_<<"----------------- jet Event loop start------------------"<<endl;
   cout<<"mini AOD Lable:"<<JetLabel_<<"............................................"<<endl; 
-  cout<<"add jet  Lable:"<<AddjetlabelC_<<"............................................"<<endl;  
+  //cout<<"add jet  Lable:"<<AddjetlabelC_<<"............................................"<<endl;  
  
 
 
@@ -128,13 +128,15 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
   std::sort(jets.begin(),jets.end(),PtGreater());
 
   std::vector<pat::Jet>::const_iterator jet =jets.begin();   
-   // cout<<"start Fatjet loop"<<endl; 
+    cout<<"#########start miniAOD loop "<<JetLabel_ <<endl; 
 
   for(;jet!=jets.end();jet++){
     nJet_++;
     //Stuff common for all jets.
 
     if(isADDJet_) continue;
+    if(true)
+    cout<<*jet <<" Fnth "<<jet->pt()<<" "<<jet->eta()<<" "<<jet->phi()<<" "<<jet->energy()<<endl;  
 
     jetTau1_.push_back(jet->userFloat("NjettinessAK8:tau1"));
     jetTau2_.push_back(jet->userFloat("NjettinessAK8:tau2"));
@@ -155,7 +157,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 
 
     
-    // now making correction of jet energy
+    
     // reco::Candidate::LorentzVector uncorrJet;
     // uncorrJet = jet->correctedP4(0);
 
@@ -543,7 +545,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 
 }//jet loop
 
- //   cout<<"######## end Fatjet loop "<<endl;
+    cout<<"######## end miniAOD jet loop "<<endl;
 
 
 
@@ -558,7 +560,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 
     if(runAddJet_&&isADDJet_)
     {
-//     cout<<"star add jet loop"<<endl; 
+     cout<<"######## star add jet loop"<<endl; 
      edm::Handle<pat::JetCollection> rejets; 
      // get jets from the event
      iEvent.getByLabel(JetLabel_, rejets);
@@ -576,7 +578,8 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
          
       for( auto jet = rejets->begin(); jet != rejets->end(); ++jet )
       {
-             
+           if(true)
+           cout<<*jet <<" nth "<<jet->pt()<<" "<<jet->eta()<<" "<<jet->phi()<<" "<<jet->energy()<<endl;  
 
            //cout<<"selectedPatJetsPFCHSPFlow: "<< jet->pt()<<endl;  
            
@@ -663,6 +666,56 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
   //       const reco::SecondaryVertexTagInfo &svTagInfo =*jet->tagInfoSecondaryVertex("secondaryVertex");  
     
          //cout<<" has tag info: "<<jet->hasTagInfo("pfInclusiveSecondaryVertexFinder") <<endl;
+
+
+
+        //check jec
+         
+    // reco::Candidate::LorentzVector uncorrJet;
+    // uncorrJet = jet->correctedP4(0);
+
+
+    // // Get the correction itself. This needs the jet area,                     
+    // // the rho value, and the number of primary vertices to                    
+    // // run the correction.                                                     
+    // jec_->setJetEta( uncorrJet.eta() );
+    // jec_->setJetPt ( uncorrJet.pt() );
+    // jec_->setJetE  ( uncorrJet.energy() );
+    // jec_->setJetA  ( jet->jetArea() );
+    // jec_->setRho   ( *(h_rho.product()) );
+    // jec_->setNPV   ( h_pv->size() );
+
+    // Float_t corr = jec_->getCorrection();
+
+    // // Now access the uncertainty on the jet energy correction.                
+    // // Pass the corrected jet pt to the "setJetPt" method.                     
+
+    // // Access the "scale up" uncertainty (+1)                                  
+    // jecUnc_->setJetEta( uncorrJet.eta() );
+    // jecUnc_->setJetPt( corr * uncorrJet.pt() );
+    // jetCorrUncUp_.push_back(jecUnc_->getUncertainty(1));
+
+    // jecUnc_->setJetEta( uncorrJet.eta() );
+    // jecUnc_->setJetPt( corr * uncorrJet.pt() );
+    // jetCorrUncDown_.push_back(jecUnc_->getUncertainty(-1));
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          if(jet->hasTagInfo(svTagInfosCstr_.data()))
          {
          const reco::CandSecondaryVertexTagInfo *candSVTagInfo = jet->tagInfoCandSecondaryVertex("pfInclusiveSecondaryVertexFinder");
@@ -768,7 +821,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 //          }  
                
       }//add jet loop
-// cout<<"#############end add jet loop"<<endl;
+ cout<<"#############end add jet loop"<<endl;
  }//if run addjet
 
 

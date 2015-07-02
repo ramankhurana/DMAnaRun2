@@ -56,6 +56,15 @@ process.leptonSequence = cms.Sequence(process.muSequence +
 
 #process.jetSequence = cms.Sequence(process.fatJetsSequence + process.substructureSequence + process.redoPatJets + process.ak4JetsSequence)
 
+ADDjecUnc='jec/START53_V23_Uncertainty_AK7PFchs.txt'
+ADDjecLevels = [
+    'jec/PHYS14_V4_MC_L1FastJet_AK8PFchs.txt',
+    'jec/PHYS14_V4_MC_L2Relative_AK8PFchs.txt',
+    'jec/PHYS14_V4_MC_L3Absolute_AK8PFchs.txt'
+    ]
+
+
+
 
 
 
@@ -666,6 +675,11 @@ process.tree = cms.EDAnalyzer(
     genJetLabel=cms.InputTag("slimmedGenJets"),
     maxNumGenPar  =  cms.uint32(30),
     applyStatusSelection = cms.bool(True),
+
+    
+    ADDjecPayloadNames = cms.vstring( ADDjecLevels ),
+    ADDjecUncName = cms.string(ADDjecUnc),
+
 
 
     ##CA8Jets=cms.InputTag("slimmedJetsAK8"),
