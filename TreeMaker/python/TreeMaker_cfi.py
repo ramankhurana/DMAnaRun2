@@ -15,10 +15,10 @@ tree = cms.EDAnalyzer(
     fillPhotInfo     = cms.bool(True),
 
     fillJetInfo      = cms.bool(True),
-    fillFATJetInfo   = cms.bool(True), ## Default is now AK8Puppi
+    fillFATJetInfo   = cms.bool(True), ## Default is now AK8Puppi + added DeepDoubleB 
     fillAK4PuppiJetInfo = cms.bool(False),
     fillAK8PuppiJetInfo = cms.bool(False), ## Only if we need to recluster
-    fillCA15PuppiJetInfo = cms.bool(True),
+    fillCA15PuppiJetInfo = cms.bool(False),
 
     pvSrc            = cms.InputTag('offlineSlimmedPrimaryVertices'),
 
@@ -101,8 +101,9 @@ tree = cms.EDAnalyzer(
     # jec still need to be checked
 
     ### FatJets
-#    FATJets=cms.InputTag("slimmedJetsAK8"),
-    FATJets              = cms.InputTag("patJetsReapplyJECAK8"),
+    FATJets=cms.InputTag("selectedUpdatedPatJets"),
+    #FATJets=cms.InputTag("slimmedJetsAK8"),
+    #FATJets              = cms.InputTag("patJetsReapplyJECAK8"),
     FATJetsForPrunedMass = cms.InputTag("patJetsReapplyJECForPrunedMass"),
     FATprunedMassJecNames= cms.vstring(
         'Summer16_23Sep2016V3_MC_L2Relative_AK8PFchs.txt',
@@ -129,6 +130,7 @@ tree = cms.EDAnalyzer(
     AK4PuppijecUncPayLoad     = cms.string('AK4PFPuppi'),
 
     ### AK8PuppiJets
+    #AK8PuppiJets              = cms.InputTag("slimmedJetsAK8"),
     AK8PuppiJets              = cms.InputTag("packedPatJetsAK8PFPuppiSoftDrop"),
     AK8PuppijecNames          = cms.vstring(
         'Summer16_23Sep2016V3_MC_L2Relative_AK8PFPuppi.txt',

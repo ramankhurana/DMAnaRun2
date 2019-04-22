@@ -85,6 +85,7 @@ class jetTree  : public baseTree{
   edm::EDGetTokenT<double>                          rhoForJetToken;
   edm::EDGetTokenT<pat::JetCollection>              jetToken;
   edm::EDGetTokenT<pat::JetCollection>              prunedMToken;
+  edm::EDGetTokenT<View<pat::Jet> > jetToken_;
 
 
  private:
@@ -195,6 +196,8 @@ class jetTree  : public baseTree{
   std::vector<float> jetTCHE_;
   std::vector<float> jetJP_;
   std::vector<float> jetJBP_;
+
+  std::vector<float> jetDeepDoubleB_;
 
 
   std::vector<float> jetTau1_;

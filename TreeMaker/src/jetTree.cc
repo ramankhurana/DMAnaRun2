@@ -248,7 +248,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
   for(;jet!=jets.end();jet++){
 
     if(jet->pt() < 10.) continue;
-    if(isFATJet_ && jet->pt() < 170.) continue;
+    if((isFATJet_ || isAK8PuppiJet_ || isCA15PuppiJet_) && jet->pt() < 170.) continue;
 
     nJet_++;
     //Stuff common for all jets.
@@ -442,6 +442,7 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
 
 
     if(isAK8PuppiJet_){
+      std::cout << "check the discriminator for AK8" << jet->bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb") << std::endl;
       jetTau1_.push_back(jet->userFloat("NjettinessAK8Puppi:tau1"));
       jetTau2_.push_back(jet->userFloat("NjettinessAK8Puppi:tau2"));
       jetTau3_.push_back(jet->userFloat("NjettinessAK8Puppi:tau3"));
@@ -653,8 +654,11 @@ jetTree::Fill(const edm::Event& iEvent, edm::EventSetup const& iSetup){
       jetCHSTau1_.push_back(jet->userFloat("ak8PFJetsCHSValueMap:NjettinessAK8CHSTau1"));
       jetCHSTau2_.push_back(jet->userFloat("ak8PFJetsCHSValueMap:NjettinessAK8CHSTau2"));
       jetCHSTau3_.push_back(jet->userFloat("ak8PFJetsCHSValueMap:NjettinessAK8CHSTau3"));
+      //std::cout << "check the FatpT " << jet->pt() << std::endl;
+      //std::cout << "check the discriminator" << jet->bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb") << std::endl;
 
 
+      jetDeepDoubleB_.push_back(jet->bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"));
       //Puppi related information
       jetTau1_.push_back(jet->userFloat("NjettinessAK8Puppi:tau1"));
       jetTau2_.push_back(jet->userFloat("NjettinessAK8Puppi:tau2"));
@@ -970,7 +974,8 @@ jetTree::SetBranches(){
     AddBranch(&jetCHSPRmass_,         "jetCHSPRmass");
     AddBranch(&jetCHSPRmassL2L3Corr_, "jetCHSPRmassL2L3Corr");
 
-
+     // doubleB tagger by Deepak
+    AddBranch(&jetDeepDoubleB_,"jetDeepDoubleB");
 
     // puppi information
     AddBranch(&jetCHSTau1_,   "jetCHSTau1");
@@ -1076,6 +1081,7 @@ jetTree::Clear(){
   jetCHSPRmass_.clear();
   jetCHSPRmassL2L3Corr_.clear();
 
+  jetDeepDoubleB_.clear();
   jetCHSTau1_.clear();
   jetCHSTau2_.clear();
   jetCHSTau3_.clear();
