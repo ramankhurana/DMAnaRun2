@@ -96,7 +96,7 @@ process.HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
 '''
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20000)
+    input = cms.untracked.int32(100)
 )
 
 '''
@@ -120,13 +120,7 @@ process.HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion=cms.bool(Fa
 
 # Input source
 if options.runOnMC:
-        #testFile='file:output_test_DDX.root'
-	#testFile='/store/mc/RunIIFall17MiniAOD/QCD_Pt_120to170_TuneCP5_13TeV_pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/00000/16E915A2-E60E-E811-AD53-001E67A3EF70.root'
-        #testFile = '/store/mc/RunIIFall17MiniAODv2/GluGluHToCC_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/30000/72164088-CB67-E811-9D0D-008CFA197AC4.root'
-        #testFile='/store/mc/RunIIFall17MiniAODv2/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/100000/2EE984E1-38B9-E811-82CF-5065F37D51A2.root'
-        #testFile='/store/mc/RunIIFall17MiniAOD/GluGluHToBB_M125_13TeV_powheg_pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/20000/C8932584-5006-E811-9840-141877410512.root'
-        #testFile='/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2G_M-1000_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/70000/8A3CD8B9-1F43-E811-A550-0CC47A7452D8.root'
-        testFile='/store/mc/RunIIFall17MiniAOD/QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/20000/C0F304A4-23FA-E711-942E-E0071B6CAD20.root'
+	testFile='/store/mc/RunIIFall17MiniAOD/QCD_Pt_120to170_TuneCP5_13TeV_pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/00000/16E915A2-E60E-E811-AD53-001E67A3EF70.root'
 else:
 	testFile='/store/data/Run2017B/MET/MINIAOD/31Mar2018-v1/100000/16963797-0937-E811-ABE2-008CFAE45134.root'
 
@@ -194,14 +188,7 @@ bTagDiscriminators = [
 	,'pfDeepCSVJetTags:probb'
 	,'pfDeepCSVJetTags:probc'
 	,'pfDeepCSVJetTags:probudsg'
-	,'pfDeepCSVJetTags:probbb',
-                        'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-                        'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
-                        'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-                        'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
-                        'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-                        'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
-                        'pfMassIndependentDeepDoubleCvBJetTags:probHcc'
+	,'pfDeepCSVJetTags:probbb'
 ]
 
 ## Jet energy corrections
@@ -328,65 +315,12 @@ jetToolbox( process, 'ca15', 'jetSequence', 'out', PUMethod='Puppi', miniAOD=opt
 	    addNsub=True )
 
 ### AK8Puppi
-
-## and add them to the event content
-
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('patTuple.root'),
-                               ## save only events passing the full path
-                               #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
-                               ## save PAT output; you need a '*' to unpack the list of commands
-                               ## 'patEventContent'
-                               outputCommands = cms.untracked.vstring('drop *', *patEventContentNoCleaning )
-                               )
-
-#process.myLabel = cms.EDAnalyzer('DemoAnalyzer',
-#            JetTag      = cms.InputTag('selectedUpdatedPatJets'),
-#)
-
-
-patAlgosToolsTask = getPatAlgosToolsTask(process)
-process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
-
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-
-updateJetCollection(
-   process,
-   jetSource = cms.InputTag('slimmedJetsAK8'),
-   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-   svSource = cms.InputTag('slimmedSecondaryVertices'),
-   rParam = 0.8,
-   jetCorrections = ('AK8PFchs', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [
-      'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-      'pfDeepDoubleBJetTags:probQ',
-      'pfDeepDoubleBJetTags:probH',
-      'pfDeepDoubleBvLJetTags:probQCD',
-      'pfDeepDoubleBvLJetTags:probHbb',
-      'pfDeepDoubleCvLJetTags:probQCD',
-      'pfDeepDoubleCvLJetTags:probHcc',
-      'pfDeepDoubleCvBJetTags:probHbb',
-      'pfDeepDoubleCvBJetTags:probHcc',
-      'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
-      'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-      'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
-      'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-      'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
-      'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
-      ]
-	)
-
-from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
-process.out.outputCommands.append('keep *_slimmedJetsAK8*_*_*')
-process.out.outputCommands.append('keep *_offlineSlimmedPrimaryVertices*_*_*')
-process.out.outputCommands.append('keep *_slimmedSecondaryVertices*_*_*')
-process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
-process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
-process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
-process.out.outputCommands.append('keep *_pfDeepDoubleXTagInfos*_*_*')
-process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
-
+#jetToolbox( process, 'ak8', 'jetSequence', 'out', PUMethod='Puppi', miniAOD=options.useMiniAOD, runOnMC=options.runOnMC,
+#	    bTagDiscriminators=(bTagDiscriminators + ([] if NOTADDHBBTag else ['pfBoostedDoubleSecondaryVertexAK8BJetTags'])),
+#	    JETCorrPayload='AK8PFPuppi',JETCorrLevels=jetCorrectionLevelsPuppi,
+#	    subJETCorrPayload='AK4PFPuppi',subJETCorrLevels=jetCorrectionLevelsPuppi,
+#	    Cut='pt>170',
+#	    addSoftDrop=True,addSoftDropSubjets=True,addNsub=True )
 
 
 ###end of add jet collection
@@ -524,8 +458,7 @@ process.tree.fillCA15PuppiJetInfo  = cms.bool(True)
 
 if options.useJECText:
 	process.tree.THINJets      = cms.InputTag("slimmedJets")
-	#process.tree.FATJets       = cms.InputTag("slimmedJetsAK8")
-	process.tree.FATJets       = cms.InputTag("selectedUpdatedPatJets")
+	process.tree.FATJets       = cms.InputTag("slimmedJetsAK8")
 	process.tree.FATJetsForPrunedMass       = cms.InputTag("slimmedJetsAK8")
 	process.tree.AK4PuppiJets  = cms.InputTag("slimmedJetsPuppi")
 
@@ -562,7 +495,6 @@ process.allEventsCounter = cms.EDFilter(
 
 if not options.useJECText:
 	process.analysis = cms.Path(
-               # process.myLabel+  ##Added by Deepak
 		process.allEventsCounter+
 		process.egmGsfElectronIDSequence+
 		process.egmPhotonIDSequence+
@@ -582,7 +514,6 @@ if not options.useJECText:
 		)
 else:
 	process.analysis = cms.Path(
-                #process.myLabel+ ##Added by Deepak
 		process.allEventsCounter+
 		process.egmGsfElectronIDSequence+
 		process.egmPhotonIDSequence+

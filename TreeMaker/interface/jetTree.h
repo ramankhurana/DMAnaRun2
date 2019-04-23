@@ -155,6 +155,11 @@ class jetTree  : public baseTree{
   std::vector<bool>  isPUJetIDMedium_;
   std::vector<bool>  isPUJetIDTight_;
 
+
+
+  std::vector<float> bRegNNCorr_;
+  std::vector<float> bRegNNResolution_;
+
   //Energy Fraction and Multiplicity
 
   std::vector<float> jetCEmEF_;
