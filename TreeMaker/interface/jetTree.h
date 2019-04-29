@@ -85,7 +85,6 @@ class jetTree  : public baseTree{
   edm::EDGetTokenT<double>                          rhoForJetToken;
   edm::EDGetTokenT<pat::JetCollection>              jetToken;
   edm::EDGetTokenT<pat::JetCollection>              prunedMToken;
-  edm::EDGetTokenT<View<pat::Jet> > jetToken_;
 
 
  private:
@@ -137,10 +136,20 @@ class jetTree  : public baseTree{
   std::vector<float> genjetAUX_;
   std::vector<float> matchedDR_;
 
+
+  std::vector<float> bRegNNCorr_;
+  std::vector<float> bRegNNResolution_;
+
   std::vector<float> jetRawFactor_;
 
   TClonesArray *jetP4_;
   TClonesArray *unCorrJetP4_;
+  std::vector<float>  jetPx_;
+  std::vector<float>  jetPy_;
+  std::vector<float>  jetPz_;
+  std::vector<float>  jetE_;
+
+
 
   std::vector<float> jetArea_;
   std::vector<float> jetCorrUncUp_;
@@ -148,17 +157,12 @@ class jetTree  : public baseTree{
   std::vector<int>   jetCharge_;
   std::vector<int>   jetPartonFlavor_;
   std::vector<int>   jetHadronFlavor_;
-//  std::vector<bool>  jetPassIDLoose_;
+  // std::vector<bool>  jetPassIDLoose_;
   std::vector<bool>  jetPassIDTight_;
   std::vector<float> PUJetID_;
   std::vector<bool>  isPUJetIDLoose_;
   std::vector<bool>  isPUJetIDMedium_;
   std::vector<bool>  isPUJetIDTight_;
-
-
-
-  std::vector<float> bRegNNCorr_;
-  std::vector<float> bRegNNResolution_;
 
   //Energy Fraction and Multiplicity
 
@@ -202,8 +206,6 @@ class jetTree  : public baseTree{
   std::vector<float> jetJP_;
   std::vector<float> jetJBP_;
 
-  std::vector<float> jetDeepDoubleB_;
-
 
   std::vector<float> jetTau1_;
   std::vector<float> jetTau2_;
@@ -245,6 +247,8 @@ class jetTree  : public baseTree{
 
   //jet  Hbb tagger for fat and add jet
 
+  
+  std::vector<float> jetDeepDoubleB_;
   std::vector<float> jet_DoubleSV_;
 
   //jet secondary vtx

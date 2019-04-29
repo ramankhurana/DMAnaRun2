@@ -42,6 +42,11 @@ void hpstauInfo::Fill(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     new( (*HPSTau_Vposition)[HPSTau_n]) TVector3(v3);
     HPSTau_charge.push_back((int)tau->charge());
 
+    TauPx_.push_back(tau->px());
+    TauPy_.push_back(tau->py());
+    TauPz_.push_back(tau->pz());
+    TauE_.push_back(tau->energy());
+
     //new disc for CSA14
     //disc_againstElectronLoose.push_back(tau->tauID("againstElectronLoose"));
     //disc_againstElectronMedium.push_back(tau->tauID("againstElectronMedium"));
@@ -166,8 +171,13 @@ void hpstauInfo::SetBranches(){
   AddBranch(&HPSTau_n  ,"HPSTau_n");
   AddBranch(&taupt  ,"taupt");
 
-  AddBranch(&HPSTau_4Momentum,"HPSTau_4Momentum");
+//  AddBranch(&HPSTau_4Momentum,"HPSTau_4Momentum");
   AddBranch(&HPSTau_Vposition,"HPSTau_Vposition");
+
+  AddBranch(&TauPx_, "HPSTau_Px");
+  AddBranch(&TauPy_, "HPSTau_Py");
+  AddBranch(&TauPz_, "HPSTau_Pz");
+  AddBranch(&TauE_, "HPSTau_Energy");
 
   AddBranch(&HPSTau_leadPFChargedHadrCand,"HPSTau_leadPFChargedHadrCand");
   AddBranch(&HPSTau_leadPFChargedHadrCand_trackRef,"HPSTau_leadPFChargedHadrCand_trackRef");
@@ -245,6 +255,11 @@ void hpstauInfo::Clear(){
   HPSTau_4Momentum->Clear();
   HPSTau_Vposition->Clear();
   taupt.clear();
+
+  TauPx_.clear();
+  TauPy_.clear();
+  TauPz_.clear();
+  TauE_.clear();
 
   HPSTau_leadPFChargedHadrCand.clear();
   HPSTau_leadPFChargedHadrCand_trackRef.clear();

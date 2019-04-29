@@ -55,6 +55,12 @@ class hpstauInfo : public baseTree{
   TClonesArray *HPSTau_4Momentum, *HPSTau_Vposition ;
   std::vector<float> taupt;
 
+  std::vector<float> TauPx_;
+  std::vector<float> TauPy_;
+  std::vector<float> TauPz_;
+  std::vector<float> TauE_;
+
+
   std::vector<bool>  HPSTau_leadPFChargedHadrCand;
   std::vector<bool> HPSTau_leadPFChargedHadrCand_trackRef;
 

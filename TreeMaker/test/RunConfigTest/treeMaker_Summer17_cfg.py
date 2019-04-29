@@ -134,6 +134,35 @@ process.source = cms.Source("PoolSource",
 
 
 
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJetsAK8'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
+   rParam = 0.8,
+   jetCorrections = ('AK8PFchs', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = [
+      'pfBoostedDoubleSecondaryVertexAK8BJetTags',
+      'pfDeepDoubleBJetTags:probQ',
+      'pfDeepDoubleBJetTags:probH',
+      'pfDeepDoubleBvLJetTags:probQCD',
+      'pfDeepDoubleBvLJetTags:probHbb',
+      'pfDeepDoubleCvLJetTags:probQCD',
+      'pfDeepDoubleCvLJetTags:probHcc',
+      'pfDeepDoubleCvBJetTags:probHbb',
+      'pfDeepDoubleCvBJetTags:probHcc',
+      'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
+      'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
+      'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
+      'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
+      ]
+        )
+
+
 ## skip the events
 ## using the MET tails events
 if options.runOnMC:
@@ -142,8 +171,14 @@ else:
     rangeEventsToSkip = cms.untracked.VEventRange(listEventsToSkip)
     process.source.eventsToSkip = rangeEventsToSkip
 
-
-
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD (
+    process,
+    isData = True, # false for MC
+    fixEE2017 = True,
+    fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+    postfix = "ModifiedMET"
+    )
 
 ##
 ## This is for Uncorrected MET
@@ -153,13 +188,11 @@ process.pfMet.calculateSignificance = False # this can't be easily implemented o
 ## Uncorrected MET edns here
 ##
 
-
-
 pvSource = 'offlineSlimmedPrimaryVertices'
 
 
 bTagDiscriminators = [
-     'pfJetBProbabilityBJetTags'
+    'pfJetBProbabilityBJetTags'
     ,'pfJetProbabilityBJetTags'
     ,'pfPositiveOnlyJetBProbabilityBJetTags'
     ,'pfPositiveOnlyJetProbabilityBJetTags'
@@ -185,10 +218,10 @@ bTagDiscriminators = [
     ,'softPFElectronBJetTags'
     ,'positiveSoftPFElectronBJetTags'
     ,'negativeSoftPFElectronBJetTags'
-	,'pfDeepCSVJetTags:probb'
-	,'pfDeepCSVJetTags:probc'
-	,'pfDeepCSVJetTags:probudsg'
-	,'pfDeepCSVJetTags:probbb'
+    ,'pfDeepCSVJetTags:probb'
+    ,'pfDeepCSVJetTags:probc'
+    ,'pfDeepCSVJetTags:probudsg'
+    ,'pfDeepCSVJetTags:probbb'
 ]
 
 ## Jet energy corrections
@@ -323,6 +356,67 @@ jetToolbox( process, 'ca15', 'jetSequence', 'out', PUMethod='Puppi', miniAOD=opt
 #	    addSoftDrop=True,addSoftDropSubjets=True,addNsub=True )
 
 
+## and add them to the event content
+
+'''
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
+process.out = cms.OutputModule("PoolOutputModule",
+                               fileName = cms.untracked.string('patTuple.root'),
+                               ## save only events passing the full path
+                               #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
+                               ## save PAT output; you need a '*' to unpack the list of commands
+                               ## 'patEventContent'
+                               outputCommands = cms.untracked.vstring('drop *', *patEventContentNoCleaning )
+                               )
+
+#process.myLabel = cms.EDAnalyzer('DemoAnalyzer',
+#            JetTag      = cms.InputTag('selectedUpdatedPatJets'),
+#)
+
+
+patAlgosToolsTask = getPatAlgosToolsTask(process)
+process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJetsAK8'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
+   rParam = 0.8,
+   jetCorrections = ('AK8PFchs', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = [
+      'pfBoostedDoubleSecondaryVertexAK8BJetTags',
+      'pfDeepDoubleBJetTags:probQ',
+      'pfDeepDoubleBJetTags:probH',
+      'pfDeepDoubleBvLJetTags:probQCD',
+      'pfDeepDoubleBvLJetTags:probHbb',
+      'pfDeepDoubleCvLJetTags:probQCD',
+      'pfDeepDoubleCvLJetTags:probHcc',
+      'pfDeepDoubleCvBJetTags:probHbb',
+      'pfDeepDoubleCvBJetTags:probHcc',
+      'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
+      'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
+      'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
+      'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
+      'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
+      ]
+        )
+
+from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
+process.out.outputCommands.append('keep *_slimmedJetsAK8*_*_*')
+process.out.outputCommands.append('keep *_offlineSlimmedPrimaryVertices*_*_*')
+process.out.outputCommands.append('keep *_slimmedSecondaryVertices*_*_*')
+process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
+process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
+process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
+process.out.outputCommands.append('keep *_pfDeepDoubleXTagInfos*_*_*')
+process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
+'''
+
 ###end of add jet collection
 
 
@@ -377,13 +471,13 @@ byVVTightIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byVVTightIsolationMVA
 ## For normal AK4 jets jet energy correction on top of miniAOD
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
 process.patJetCorrFactorsReapplyJECAK4 = updatedPatJetCorrFactors.clone(
-	src = cms.InputTag("slimmedJets"),
+	src = cms.InputTag("appliedRegJets"),
 	levels = jetCorrectionLevelsFullCHS,
 	payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
 process.patJetsReapplyJECAK4 = updatedPatJets.clone(
-	jetSource = cms.InputTag("slimmedJets"),
+	jetSource = cms.InputTag("appliedRegJets"),
 	jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJECAK4"))
   )
 
@@ -457,20 +551,21 @@ process.tree.fillCA15PuppiJetInfo  = cms.bool(True)
 
 
 if options.useJECText:
-	process.tree.THINJets      = cms.InputTag("slimmedJets")
-	process.tree.FATJets       = cms.InputTag("slimmedJetsAK8")
+	process.tree.THINJets      = cms.InputTag("appliedRegJets")
+	process.tree.FATJets       = cms.InputTag("selectedUpdatedPatJets")#("slimmedJetsAK8")
 	process.tree.FATJetsForPrunedMass       = cms.InputTag("slimmedJetsAK8")
 	process.tree.AK4PuppiJets  = cms.InputTag("slimmedJetsPuppi")
 
 
 
-process.TFileService = cms.Service("TFileService",
-				   fileName = cms.string("NCUGlobalTuples.root")
+process.TFileService = cms.Service("TFileService",fileName = cms.string("NCUGlobalTuples.root"))
 
-				   )
-
-
-
+##Trigger Filter
+process.trigFilter = cms.EDFilter('TrigFilter',
+                                 TrigTag = cms.InputTag("TriggerResults::HLT"),
+                                 TrigPaths = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60","HLT_PFMETNoMu120_PFMHTNoMu120_IDTight","HLT_PFMETNoMu140_PFMHTNoMu140_IDTight","HLT_IsoMu27","HLT_IsoTkMu27","HLT_IsoMu24","HLT_IsoTkMu24","HLT_Ele27_WPTight_Gsf","HLT_Ele32_WPTight_Gsf_L1DoubleEG","HLT_Ele35_WPTight_Gsf","HLT_Photon200"),
+                                 isMC_ = cms.bool(options.runOnMC)
+                                 )
 ## New MET Filters
 process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
 process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
@@ -493,13 +588,25 @@ process.allEventsCounter = cms.EDFilter(
  )
 
 
+
+process.appliedRegJets= cms.EDProducer('bRegressionProducer',
+                                           JetTag=cms.InputTag("slimmedJets"),
+                                           rhoFixedGridCollection = cms.InputTag('fixedGridRhoFastjetAll'),
+                                           #bRegressionWeightfile= cms.untracked.string("/afs/cern.ch/work/d/dekumar/public/flashgg_setup/CMSSW_8_0_28/src/flashgg/MetaData/data/DNN_models/model-18"),
+                                           y_mean = cms.untracked.double(1.0454729795455933) ,
+                                           y_std = cms.untracked.double( 0.31628304719924927)
+                                           )
+
 if not options.useJECText:
 	process.analysis = cms.Path(
+	process.appliedRegJets+  #added by deepak
+        process.trigFilter+
 		process.allEventsCounter+
 		process.egmGsfElectronIDSequence+
 		process.egmPhotonIDSequence+
 		process.rerunMvaIsolationSequence
 		*process.NewTauIDsEmbedded+
+		process.fullPatMetSequenceModifiedMET+
 		process.pfMet+
 		process.jetCorrSequenceAK4+
 		process.jetCorrSequenceAK8+
@@ -514,11 +621,14 @@ if not options.useJECText:
 		)
 else:
 	process.analysis = cms.Path(
+	process.appliedRegJets+
+        process.trigFilter+
 		process.allEventsCounter+
 		process.egmGsfElectronIDSequence+
 		process.egmPhotonIDSequence+
 		process.rerunMvaIsolationSequence*
 		process.NewTauIDsEmbedded+
+		process.fullPatMetSequenceModifiedMET+
 		process.pfMet+
 		process.BadPFMuonFilter+
 		process.BadChargedCandidateFilter+
