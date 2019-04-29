@@ -1,9 +1,13 @@
 
 # DMAnaRun2
 
-Installation file: 
+## New Instalation file
+### To install the new reduced Framework: 
 
-
+```
+wget https://raw.githubusercontent.com/deepakcern/DMAnaRun2/94x_2017_reduced/install_DM_in_cmssw9413.sh
+. install_DM_in_cmssw9413.sh
+```
 
 
 
