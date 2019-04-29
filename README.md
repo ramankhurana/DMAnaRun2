@@ -1,7 +1,7 @@
 
 # DMAnaRun2
 
-## New Instalation file
+## New Installation file
 ### To install the new reduced Framework: 
 
 ```
