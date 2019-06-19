@@ -6,7 +6,7 @@
 
 ```
 wget https://raw.githubusercontent.com/deepakcern/DMAnaRun2/94x_2017_reduced/install_DM_in_cmssw9413.sh
-. install_DM_in_cmssw9413.sh
+. New_install_DM_in_cmssw9413.sh
 ```
 
 
