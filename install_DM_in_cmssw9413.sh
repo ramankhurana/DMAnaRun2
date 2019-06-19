@@ -71,3 +71,6 @@ cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification
 rm -rf Spring15/ Spring16_GeneralPurpose_V1/ Spring16_HZZ_V1/
 
 cd $CMSSW_BASE/src
+
+## need to copy them so that the code can be tested in test directory where original config files are placed. 
+cp DelPanj/CrabUtilities/effArea* DelPanj/TreeMaker/test/RunConfigTest/
